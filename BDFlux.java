@@ -1,5 +1,6 @@
 package fr.insalyon.p2i2.javaarduino.tdtp;
 
+import java.util.List;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -17,6 +18,7 @@ import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -27,6 +29,7 @@ public class BDFlux {
     private Connection conn;
     private PreparedStatement insertObjectStatement;
     private PreparedStatement selectMesuresStatement;
+    private ArrayList<String> listeObjets = new ArrayList<String>();
 
     public static void main(String[] args) {
 
@@ -46,8 +49,12 @@ public class BDFlux {
 //                new GregorianCalendar(2016, Calendar.MAY, 8).getTime(),
 //                new GregorianCalendar(2016, Calendar.MAY, 9).getTime()
 //            );
+        //bdFlux.ajouterMesure(60,"blbla","[vwenfw]");
+        bdFlux.selectObject("parc");
 
     }
+    
+   
 
     public BDFlux(String bd, String compte, String motDePasse) {
         try {
@@ -62,14 +69,40 @@ public class BDFlux {
             System.out.println("Connexion établie...");
 
             // Prepared Statement
-            this.insertObjectStatement = this.conn.prepareStatement("INSERT INTO Objets (idObjet,nomObjet,tag) VALUES (?,?,?) ;");
+            this.insertObjectStatement = this.conn.prepareStatement("INSERT INTO Objets (idObjets,nomObjets,tags) VALUES (?,?,?) ;");
+            this.selectMesuresStatement = this.conn.prepareStatement("SELECT * FROM Objets where tags like ? ;");
 
         } catch (Exception ex) {
             ex.printStackTrace(System.err);
             System.exit(-1);
         }
     }
-
+    
+    public void displayList(ArrayList<String> list){
+    	for(String item : list)
+        {   
+            System.out.println(item);
+        }
+    }
+    
+    public void selectObject(String tag){
+    	try{
+    	listeObjets.clear();
+        this.selectMesuresStatement.setString(1,"%" + tag + "%"); // DATETIME
+        ResultSet result = this.selectMesuresStatement.executeQuery();
+   
+        while (result.next()) {
+        String s =result.getString("nomObjets") +"; "+ result.getString("tags");
+        listeObjets.add(s);
+        }
+        displayList(listeObjets);
+        
+    	} catch (SQLException ex) {
+            ex.printStackTrace(System.err);
+            System.exit(-1);
+        }
+    }
+    
     public void lireMesuresDepuisFichier(String cheminVersFichier) {
         try {
             // À compléter
@@ -89,27 +122,27 @@ public class BDFlux {
     }
 
     public void lireMesures(BufferedReader input) {
-        try {
+      //  try {
 
-            String line;
+//            String line;
+//
+//            while ((line = input.readLine()) != null) {
+//                String[] valeurs = line.split(";");
+//                if (valeurs.length > 1) {
+//
+//                    // À compléter
+//                    Integer numInventaire = Integer.parseInt(valeurs[0]);
+//                    Double valeur = Double.parseDouble(valeurs[1]);
+//                    System.out.println("Le Capteur n°" + numInventaire + " a mesuré: " + valeur);
 
-            while ((line = input.readLine()) != null) {
-                String[] valeurs = line.split(";");
-                if (valeurs.length > 1) {
+                    ajouterMesure(20, "fejwkn", "fewknfw");
+   //             }
+    //        }
 
-                    // À compléter
-                    Integer numInventaire = Integer.parseInt(valeurs[0]);
-                    Double valeur = Double.parseDouble(valeurs[1]);
-                    System.out.println("Le Capteur n°" + numInventaire + " a mesuré: " + valeur);
-
-                    ajouterMesure(numInventaire, valeur, new Date());
-                }
-            }
-
-        } catch (IOException ex) {
-            ex.printStackTrace(System.err);
-            System.exit(-1);
-        }
+//        } catch (IOException ex) {
+//            ex.printStackTrace(System.err);
+//            System.exit(-1);
+//        }
 
     }
 
@@ -125,53 +158,5 @@ public class BDFlux {
         }
     }
 
-    public void ecrireMesures(PrintWriter output, int numInventaire, Date dateDebut, Date dateFin) {
 
-        try {
-
-            this.selectMesuresStatement.setInt(1, numInventaire);
-            this.selectMesuresStatement.setTimestamp(2, new Timestamp(dateDebut.getTime())); // DATETIME
-            this.selectMesuresStatement.setTimestamp(3, new Timestamp(dateFin.getTime())); // DATETIME
-            ResultSet result = this.selectMesuresStatement.executeQuery();
-
-            SimpleDateFormat formatDatePourCSV = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            DecimalFormat formatNombreDecimal = new DecimalFormat("0.00");
-            formatNombreDecimal.setDecimalFormatSymbols(new DecimalFormatSymbols(Locale.ROOT));
-
-            while (result.next()) {
-
-                output.println(
-                        result.getInt("numInventaire") + ";"
-                        + formatDatePourCSV.format(new Date(result.getTimestamp("dateMesure").getTime())) + ";"
-                        + formatNombreDecimal.format(result.getDouble("valeur")) + ";"
-                );
-
-            }
-
-        } catch (SQLException ex) {
-            ex.printStackTrace(System.err);
-            System.exit(-1);
-        }
-    }
-
-    public void ecrireMesuresDansFichier(String cheminVersDossier, int numInventaire, Date dateDebut, Date dateFin) {
-
-        try {
-            SimpleDateFormat formatDatePourNomFichier = new SimpleDateFormat("yyyyMMdd-HHmmss");
-            String datePourNomFichier = formatDatePourNomFichier.format(new Date());
-            String nomFichier = "mesures-output_" + datePourNomFichier + ".csv";
-
-            PrintWriter writer = new PrintWriter(new OutputStreamWriter(
-                    new FileOutputStream(cheminVersDossier + "\\" + nomFichier)
-            ));
-
-            ecrireMesures(writer, numInventaire, dateDebut, dateFin);
-
-            writer.close();
-
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace(System.err);
-            System.exit(-1);
-        }
-    }
 }

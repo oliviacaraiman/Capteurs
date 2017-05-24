@@ -17,6 +17,7 @@ public class EcouteurMotASaisir implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		//recuperation de la liste des objets manquants
 		listeObjets = myInterface.mainClass.listeNomsObjetsManquants;
+		System.out.println(listeObjets.size());
 		// affichage des objets manquant
 		System.out.println("Interf:");
 		for(String item : listeObjets){   

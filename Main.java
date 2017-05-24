@@ -18,7 +18,7 @@ public class Main {
     private PreparedStatement insertObjetUtiliseStatement;
 	public BDRecVoc bdRecVoc;
 	public BDRFID bdRFID;
-	public ArrayList<String> listeNomsObjetsManquants;
+	public ArrayList<String> listeNomsObjetsManquants =new ArrayList<String>();;
 	public ArrayList<String> listeRFID;
 	public ArrayList<String> listeObjets;
 	public Main mainClass;
@@ -101,6 +101,7 @@ public class Main {
            // System.out.println("Id " + idObjet + " manque");
             return this.insertObjetOublieStatement.executeUpdate();
             
+            
         } catch (SQLException ex) {
             ex.printStackTrace(System.err);
             return -1;
@@ -125,7 +126,7 @@ public class Main {
 	
 	 public void objetManquant(String idObjets){
 	    	try{
-	    			listeNomsObjetsManquants = new ArrayList<String>();
+	    			
 	    			this.selectObjectStatement.setString(1,idObjets); 
 	    			ResultSet result = this.selectObjectStatement.executeQuery();
 	    		
@@ -144,6 +145,7 @@ public class Main {
 	
 	 //methode qui affiche les element d'une liste
 	 public void displayList(ArrayList<String> list){
+		 System.out.println("Display list:");
 	     for(String item : list){   
 	       		System.out.println(item + " manque");
 	   	}

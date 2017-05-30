@@ -34,13 +34,14 @@ public class JavaArduino {
     private Connection conn;
     private PreparedStatement insertObjectStatement;
     private PreparedStatement selectMesuresStatement;
-    private ArrayList<String> listeRFID = new ArrayList<String>();
-    private String port;
+    private static ArrayList<String> listeRFID = new ArrayList<String>();
+    private static ArrayList<String> listeVR = new ArrayList<String>();
+    private String port,port2;
     
     public static void main(String[] args) {
     	JavaArduino jaarRFID = new JavaArduino();
     	jaarRFID.addToList("55555");
-    	jaarRFID.displayList();
+    	jaarRFID.displayList(listeVR);
     }
     
 
@@ -69,11 +70,36 @@ public class JavaArduino {
         } while (port == null);
         
         port = "COM7";
+        port2 = "COM3";
         
-        console.println("Connection au Port " + port);
+        console.println("Connection au Port " + port+" et "+port2);
         try {
             final ArduinoUsbChannel vcpChannel = new ArduinoUsbChannel(port);
+            final ArduinoUsbChannel vcpChannel2 = new ArduinoUsbChannel(port2);
+            
+            Thread readingThreadVR = new Thread(new Runnable() {
+                public void run() {
+                    BufferedReader vcpInput2 = new BufferedReader(new InputStreamReader(vcpChannel2.getReader()));
+                    
+                    String line;
+                    try {
 
+                        while ((line = vcpInput2.readLine()) != null) {
+                        	console.log(line);
+                        	listeVR.add(line); //ADAPTER POUR REC VOC
+                        	displayList(listeVR);
+                        	System.out.println("display list 1");
+                            //console.println(line);
+                        }
+
+                    } catch (IOException ex) {
+                        ex.printStackTrace(System.err);
+                    }
+                    
+                }
+            }
+            );
+            
             Thread readingThread = new Thread(new Runnable() {
                 public void run() {
                     BufferedReader vcpInput = new BufferedReader(new InputStreamReader(vcpChannel.getReader()));
@@ -84,7 +110,7 @@ public class JavaArduino {
                         while ((line = vcpInput.readLine()) != null) {
                         	console.log(line);
                         	listeRFID.add(line); //ADAPTER POUR REC VOC
-                        	displayList();
+                        	displayList(listeRFID);
                         	System.out.println("display list 1");
                             //console.println(line);
                         }
@@ -98,9 +124,10 @@ public class JavaArduino {
             );
             
             readingThread.start();
-            
+            readingThreadVR.start();
             vcpChannel.open();
-            
+            vcpChannel2.open();
+
             boolean exit = false;
             
             while (!exit) {
@@ -118,14 +145,21 @@ public class JavaArduino {
                 
                 vcpChannel.getWriter().write(line.getBytes("UTF-8"));
                 vcpChannel.getWriter().write('\n');
+                vcpChannel2.getWriter().write(line.getBytes("UTF-8"));
+                vcpChannel2.getWriter().write('\n');
             
             }
             
             vcpChannel.close();
-            
+            vcpChannel2.close();
+
             readingThread.interrupt();
+            readingThreadVR.interrupt();
+
             try {
                 readingThread.join(1000);
+                readingThreadVR.join(1000);
+
             } catch (InterruptedException ex) {
                 ex.printStackTrace(System.err);
             }
@@ -140,8 +174,8 @@ public class JavaArduino {
     }
    
 
-    public void displayList(){
-       	for(String item : listeRFID)
+    public void displayList(ArrayList<String> liste){
+       	for(String item : liste)
        	{   
        		System.out.println(item);
     	}

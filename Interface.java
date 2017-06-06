@@ -15,7 +15,7 @@ import javax.swing.JTextField;
 	public class Interface extends JFrame {
 
 
-	    public JTextField tfMotASaisir;
+	   
 	    public JTextArea textArea = new JTextArea("Objets manquants: \n", 20, 20);
 	    public Main mainClass = new Main();
 
@@ -35,18 +35,17 @@ import javax.swing.JTextField;
 	        //Création des éléments visibles sur la fenetre
 	        //Ici on n'a que le bouton
 	        
-	        this.tfMotASaisir = new JTextField(null, 20);
-	        JButton bouttonACliquer = new JButton("OK");
+	        JButton bouttonACliquer = new JButton("Afficher les objets");
 	        bouttonACliquer.addActionListener(new EcouteurMotASaisir(this));
-	     //   bouttonACliquer.addActionListener(new EcouteurClic(this));
+	   
 
 	        //Création d'un conteneur principal
 	        JPanel conteneurPrincipal = new JPanel(new FlowLayout());
 	        this.setContentPane(conteneurPrincipal);
 	        
-	        conteneurPrincipal.add(tfMotASaisir);
 	        conteneurPrincipal.add(bouttonACliquer);
 	        conteneurPrincipal.add(textArea);
+	        conteneurPrincipal.add(new Pannel(this));
 	        
 	        
 	        //Rendre la fenêtre visible

@@ -20,6 +20,7 @@ public class EcouteurMotASaisir implements ActionListener {
 		System.out.println(listeObjets.size());
 		// affichage des objets manquant
 		System.out.println("Interf:");
+		JavaArduino.supprimerDoublon(listeObjets);
 		for(String item : listeObjets){   
 			System.out.println(item);
        		myInterface.textArea.append(item + "\n");

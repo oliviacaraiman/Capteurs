@@ -1,4 +1,5 @@
-package m�t�oa;
+package fr.insalyon.p2i2.javaarduino.tdtp;
+
 import java.io.*;
 import java.net.*;
 import java.io.FileOutputStream;
@@ -15,7 +16,7 @@ public class Meteo {
 			String chaine="";
 			
 			//RECUPERATION DONNEES METEO
-			URL url = new URL("https://api.darksky.net/forecast/ea4c8dfa83dc8a5d148ce6ea2237a019/58.968360,5.734090?exclude=daily,minutely,hourly");
+			URL url = new URL("https://api.darksky.net/forecast/ea4c8dfa83dc8a5d148ce6ea2237a019/51.4800000,-3.1800000?exclude=daily,minutely,hourly");
 			URLConnection con=url.openConnection();
 			System.out.println(con.getContent());
 			InputStream input = con.getInputStream();

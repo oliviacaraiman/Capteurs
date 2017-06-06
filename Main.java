@@ -17,23 +17,22 @@ public class Main {
     private PreparedStatement insertObjetOublieStatement;
     private PreparedStatement insertObjetUtiliseStatement;
 	public BDRecVoc bdRecVoc;
-	public BDRFID bdRFID;
-	public ArrayList<String> listeNomsObjetsManquants =new ArrayList<String>();;
-	public ArrayList<String> listeRFID;
-	public ArrayList<String> listeObjets;
-	public Main mainClass;
-	public String nomLieu = "cours";
+	public ArrayList<String> listeNomsObjetsManquants =new ArrayList<String>();
+	public static ArrayList<String> listeRFID=new ArrayList<String>();
+	public ArrayList<String> listeObjets=new ArrayList<String>();
+	//public Main this;
+	public ArrayList<String> listeLieu = new ArrayList<String>();;
 	
 	public Main (String bd, String compte, String motDePasse){
 		
 		 try {
 	            //Enregistrement de la classe du driver par le driverManager
 	            Class.forName("com.mysql.jdbc.Driver");
-	            System.out.println("Driver trouvé...");
-
-	            //Création d'une connexion sur la base de donnée
+	            System.out.println("Driver trouvï¿½...");
+	           // this = new Main("sql11172522", "sql11172522", "Tclw7Ag8uh");
+	            //Crï¿½ation d'une connexion sur la base de donnï¿½e
 	            this.conn = DriverManager.getConnection("jdbc:mysql://sql11.freemysqlhosting.net:3306/" + bd, compte, motDePasse);
-	            System.out.println("Connexion établie...");
+	            System.out.println("Connexion ï¿½tablie...");
 	            this.selectObjectStatement= this.conn.prepareStatement("SELECT * FROM Objets where idObjets=?;");
 	            this.insertObjetOublieStatement = this.conn.prepareStatement("INSERT INTO ObjetsOublies (idObjets,lieu,dateOubli) VALUES (?,?,?) ;");
 	            this.insertObjetUtiliseStatement = this.conn.prepareStatement("INSERT INTO ObjetsUtilises (idObjets,lieu,dateUtilisation) VALUES (?,?,?) ;");
@@ -47,48 +46,72 @@ public class Main {
 	public Main() {
 		
 	}
-	
+	/*
 	public static void main(String[] args) {
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		//creation des objets
 		BDRecVoc bdRecVoc = new BDRecVoc("sql11172522", "sql11172522", "Tclw7Ag8uh");
-		Main mainClass = new Main("sql11172522", "sql11172522", "Tclw7Ag8uh");
-		BDRFID bdRFID = new BDRFID();
-		Interface myInterface = new Interface(800,800,mainClass);  
+		Main main = new Main("sql11172522", "sql11172522", "Tclw7Ag8uh");
+		
+		//Interface myInterface = new Interface(800,800,main);  
 		
 		//recuperer le mot de l'interface
-		//mainClass.nomLieu = myInterface.tfMotASaisir.getText();
-		System.out.println("Mot:" + mainClass.nomLieu);
+		//this.nomLieu = myInterface.tfMotASaisir.getText();
 		
-		bdRecVoc.selectObject(mainClass.nomLieu);
+		bdRecVoc.selectObject("obligatoire");
+		
+		
 		
 		//ajout des objets qui ne sont pas oubliee (RFID)
-  	    bdRFID.addToList("12345");
+  	    
 	      //bdRFID.addToList("25");
-	      System.out.println("Arduino list:");
-	      bdRFID.displayList();
+	     // System.out.println("Arduino list:");
 	      
 	      //creation des listes
-	      ArrayList<String> listeRFID = bdRFID.getListeRFID();
+	      
 	      ArrayList<String> listeObjets = bdRecVoc.getListeObjets();
-	      mainClass.compareLists(listeObjets,listeRFID);
+	      main.displayList(listeObjets);
 	}
-	
+	*/
 	//methode qui detecte les objets qu'on a oublie et qu'on a sur soi
 	public void compareLists(ArrayList<String> listeObjets, ArrayList<String> listeRFID){
 		//displayList(listeObjets);
 		//displayList(listeRFID);
+		if(listeObjets.get(0)==null){
+			listeObjets.add("asfg");
+			
+		}
 		for (String itemObjets : listeObjets){
 			boolean trouve = false;
 			for (String itemRFID : listeRFID){
 				if (itemObjets.equals(itemRFID)){
 					trouve = true;
-					ajouterObjetUtilise(itemObjets,nomLieu);
+					for(int i =0;i<this.listeLieu.size();i++){
+						ajouterObjetUtilise(itemObjets,listeLieu.get(i));
+					}
 				}
 			}
 			if (!trouve) {
 				objetManquant(itemObjets);
 			}
 		}
+		
 	}
 	
 	//methode qui ajoute les objets oublies dans le table "ObjetsOublies"
@@ -126,14 +149,21 @@ public class Main {
 	
 	 public void objetManquant(String idObjets){
 	    	try{
-	    			
 	    			this.selectObjectStatement.setString(1,idObjets); 
 	    			ResultSet result = this.selectObjectStatement.executeQuery();
 	    		
 	    			while (result.next()) {
 	    				String s =result.getString("nomObjets");
 	    				listeNomsObjetsManquants.add(s);
-	    				ajouterObjetOublie(idObjets,nomLieu);
+	    				
+	    				
+	    				//ajouterObjetUtilise(idObjets,"PARC");
+	    				
+	    				if(this.listeLieu.get(0)!=null){
+		    				for(int i =0;i<this.listeLieu.size();i++){
+								ajouterObjetUtilise(idObjets,this.listeLieu.get(i));
+							}
+	    				}
 	    			}
 	    			displayList(listeNomsObjetsManquants);
 	    			
